@@ -5,10 +5,8 @@ import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
-// NOTE: site と base はGitHub Pages公開後に実際のURLに書き換えてください
-// 例: site: 'https://your-username.github.io', base: '/kakei-news'
 export default defineConfig({
-	site: 'https://your-username.github.io',
+	site: 'https://0305drystoryyuki.github.io',
 	base: '/kakei-news',
 	integrations: [mdx(), sitemap()],
 	fonts: [
