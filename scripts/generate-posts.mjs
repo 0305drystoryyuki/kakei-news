@@ -11,6 +11,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import Parser from 'rss-parser';
+import { marked } from 'marked';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -56,6 +57,13 @@ const KEYWORDS = [
 
 const MAX_POSTS_PER_DAY = 2;
 const MODEL = 'claude-sonnet-4-5';
+
+// 公開サイトのURL（詳細版へのリンクに使用）
+const SITE_BASE_URL = 'https://0305drystoryyuki.github.io/kakei-news';
+
+// WordPress設定
+const WP_CATEGORY_ID = 9; // 「お勉強」カテゴリ
+const WP_STATUS = 'draft'; // draft または publish
 
 /**
  * RSSを全フィード取得してフラットな記事配列に
@@ -225,6 +233,56 @@ async function writePost({ article, item, slug, pairedSlug, style }) {
 	return filePath;
 }
 
+/**
+ * WordPressにやさしい版の記事を投稿する（下書き）
+ */
+async function postToWordPress({ kidsArticle, detailSlug, item }) {
+	const wpUrl = process.env.WP_URL;
+	const wpUser = process.env.WP_USERNAME;
+	const wpPass = process.env.WP_APP_PASSWORD;
+	if (!wpUrl || !wpUser || !wpPass) {
+		console.log('  → WP設定なしのためスキップ');
+		return null;
+	}
+
+	// Markdown → HTML変換
+	const bodyHtml = marked.parse(kidsArticle.body);
+
+	// 詳細版への誘導リンクをフッターに追加
+	const detailUrl = `${SITE_BASE_URL}/blog/${detailSlug}/`;
+	const footer = `
+<hr>
+<p>📖 <strong>もっと詳しく知りたい方へ</strong><br>
+大人向けの詳細版を家計ニュースブログで公開中。制度の詳細や家計への具体的な影響を深掘りしています。<br>
+<a href="${detailUrl}" target="_blank" rel="noopener">▶ 詳細版を読む</a></p>
+<p><small>※本記事はAIが<a href="${item.link}" target="_blank" rel="noopener">${item.source}</a>の公開情報を元に要約したものです。正確な情報は元記事をご確認ください。</small></p>
+`;
+
+	const endpoint = `${wpUrl.replace(/\/$/, '')}/wp-json/wp/v2/posts`;
+	const auth = Buffer.from(`${wpUser}:${wpPass.replace(/\s/g, '')}`).toString('base64');
+
+	const resp = await fetch(endpoint, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Basic ${auth}`,
+		},
+		body: JSON.stringify({
+			title: kidsArticle.title,
+			content: bodyHtml + footer,
+			excerpt: kidsArticle.description,
+			status: WP_STATUS,
+			categories: [WP_CATEGORY_ID],
+		}),
+	});
+	if (!resp.ok) {
+		const text = await resp.text();
+		throw new Error(`WP投稿失敗 ${resp.status}: ${text.slice(0, 200)}`);
+	}
+	const data = await resp.json();
+	return { id: data.id, link: data.link };
+}
+
 async function main() {
 	const apiKey = process.env.ANTHROPIC_API_KEY;
 	if (!apiKey) {
@@ -281,6 +339,20 @@ async function main() {
 				style: 'kids',
 			});
 			console.log(`  ✔ やさしい版: ${path.relative(ROOT, kidsPath)}`);
+
+			// WordPressにやさしい版を下書き投稿
+			try {
+				const wpResult = await postToWordPress({
+					kidsArticle: kids,
+					detailSlug,
+					item,
+				});
+				if (wpResult) {
+					console.log(`  ✔ WP下書き: ${wpResult.link} (ID: ${wpResult.id})`);
+				}
+			} catch (wpErr) {
+				console.error(`  ✖ WP投稿エラー: ${wpErr.message}`);
+			}
 		} catch (err) {
 			console.error(`  ✖ 失敗: ${err.message}`);
 		}
