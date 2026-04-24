@@ -64,6 +64,10 @@ const SITE_BASE_URL = 'https://0305drystoryyuki.github.io/kakei-news';
 // WordPress設定
 const WP_CATEGORY_ID = 9; // 「お勉強」カテゴリ
 const WP_STATUS = 'draft'; // draft または publish
+const WP_FEATURED_MEDIA_ID = 336; // アイキャッチ画像のメディアID
+
+// 新ブログ用アイキャッチ画像パス（frontmatterに書き込む相対パス）
+const HERO_IMAGE_PATH = '../../assets/featured.png';
 
 /**
  * RSSを全フィード取得してフラットな記事配列に
@@ -210,6 +214,7 @@ async function writePost({ article, item, slug, pairedSlug, style }) {
 		`title: '${escapedTitle}'`,
 		`description: '${escapedDesc}'`,
 		`pubDate: '${iso}'`,
+		`heroImage: '${HERO_IMAGE_PATH}'`,
 		`sourceName: '${item.source}'`,
 		`sourceUrl: '${item.link}'`,
 	];
@@ -273,6 +278,7 @@ async function postToWordPress({ kidsArticle, detailSlug, item }) {
 			excerpt: kidsArticle.description,
 			status: WP_STATUS,
 			categories: [WP_CATEGORY_ID],
+			featured_media: WP_FEATURED_MEDIA_ID,
 		}),
 	});
 	if (!resp.ok) {

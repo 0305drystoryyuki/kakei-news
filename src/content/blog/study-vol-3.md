@@ -2,6 +2,7 @@
 title: 'お勉強しましょVol.3｜4月23日の経済ニュースまとめ（日経平均6万円突破）'
 description: '日経平均が史上初の6万円台を突破、年収の壁178万円の税制改正、食事補助の非課税枠42年ぶり拡大、自動車税・環境性能割の廃止、介護保険法改正など4月23日時点の経済・制度ニュースをまとめました。'
 pubDate: '2026-04-24T00:00:00.000Z'
+heroImage: '../../assets/featured.png'
 sourceName: 'シンパパ家計研究所'
 sourceUrl: 'https://kizukeba-itametahi.com/4%e6%9c%8823%e6%97%a5%e3%81%ae%e7%b5%8c%e6%b8%88%e3%83%8b%e3%83%a5%e3%83%bc%e3%82%b9%e3%81%be%e3%81%a8%e3%82%81%ef%bd%9c%e6%97%a5%e7%b5%8c%e5%b9%b3%e5%9d%876%e4%b8%87%e5%86%86%e7%aa%81%e7%a0%b4/'
 kidsVersion: 'study-vol-3-kids'

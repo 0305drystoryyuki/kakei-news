@@ -2,6 +2,7 @@
 title: '【やさしい版】お勉強しましょVol.3｜日経平均6万円ってすごいの？を小学生向けに'
 description: '日経平均が初めて6万円を超えたニュースや、自動車の税金の変更、年金のルールなど、4月23日のお金の話題を小学生でもわかるように解説しました。'
 pubDate: '2026-04-24T00:00:00.000Z'
+heroImage: '../../assets/featured.png'
 detailVersion: 'study-vol-3'
 ---
 

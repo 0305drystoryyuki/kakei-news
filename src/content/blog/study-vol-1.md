@@ -2,6 +2,7 @@
 title: 'お勉強しましょうVol.1｜経済ニュースまとめ 2026-04-22'
 description: '2026年度税制改正による「年収の壁」178万円への引き上げ、2026年4月施行の社会保険・年金制度改正、日経平均の最高値更新など、家計に直結する主要経済ニュースをまとめました。'
 pubDate: '2026-04-22T00:00:00.000Z'
+heroImage: '../../assets/featured.png'
 sourceName: 'シンパパ家計研究所'
 sourceUrl: 'https://kizukeba-itametahi.com/%e3%81%8a%e5%8b%89%e5%bc%b7%e3%81%97%e3%81%be%e3%81%97%e3%82%87%e3%81%86vol-1/'
 kidsVersion: 'study-vol-1-kids'
