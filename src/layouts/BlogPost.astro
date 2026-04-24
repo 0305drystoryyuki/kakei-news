@@ -8,7 +8,9 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, kidsVersion, detailVersion } =
+	Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <html lang="en">
@@ -52,6 +54,25 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			.pair-link {
+				display: inline-block;
+				margin: 1rem 0 1.5rem;
+				padding: 0.75rem 1.25rem;
+				background: rgba(var(--accent), 0.08);
+				border: 1px solid rgba(var(--accent), 0.3);
+				border-radius: 8px;
+				color: rgb(var(--accent));
+				text-decoration: none;
+				font-weight: 600;
+				transition: 0.2s ease;
+			}
+			.pair-link:hover {
+				background: rgba(var(--accent), 0.15);
+				transform: translateY(-1px);
+			}
+			.pair-link .emoji {
+				margin-right: 0.5rem;
+			}
 		</style>
 	</head>
 
@@ -77,6 +98,22 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<h1>{title}</h1>
 						<hr />
 					</div>
+					{
+						kidsVersion && (
+							<a class="pair-link" href={`${base}blog/${kidsVersion}/`}>
+								<span class="emoji">🧒</span>
+								小学生でもわかるやさしい版はこちら →
+							</a>
+						)
+					}
+					{
+						detailVersion && (
+							<a class="pair-link" href={`${base}blog/${detailVersion}/`}>
+								<span class="emoji">📖</span>
+								大人向けの詳しい版はこちら →
+							</a>
+						)
+					}
 					<slot />
 				</div>
 			</article>
