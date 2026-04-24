@@ -1,49 +1,110 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const base = import.meta.env.BASE_URL;
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 6);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="hero">
+				<h1>家計ニュース</h1>
+				<p class="lead">
+					シングルファザー・子育て家庭に役立つお金のニュースを、毎日AIが要約してお届け。
+					制度改正・補助金・家計術・資産形成など、家族の暮らしに直結する話題を厳選しています。
+				</p>
+			</section>
+
+			<section class="latest">
+				<h2>新着記事</h2>
+				{posts.length === 0 && <p>まだ記事がありません。明日朝8時の自動更新をお待ちください。</p>}
+				<ul>
+					{
+						posts.map((post) => (
+							<li>
+								<a href={`${base}blog/${post.id}/`.replace(/\/+/g, '/')}>
+									<h3 class="title">{post.data.title}</h3>
+									<p class="date">
+										<FormattedDate date={post.data.pubDate} />
+									</p>
+									<p class="desc">{post.data.description}</p>
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.hero {
+		padding: 2rem 0 1.5rem;
+		border-bottom: 1px solid rgba(var(--gray-light), 0.5);
+		margin-bottom: 2rem;
+	}
+	.hero h1 {
+		margin: 0 0 0.5rem;
+		font-size: 2.5rem;
+	}
+	.lead {
+		margin: 0;
+		color: rgb(var(--gray-dark));
+		line-height: 1.7;
+	}
+	.latest h2 {
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
+	.latest ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	.latest li {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid rgba(var(--gray-light), 0.5);
+	}
+	.latest li:last-child {
+		border-bottom: none;
+	}
+	.latest a {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+		transition: 0.2s ease;
+	}
+	.latest a:hover .title {
+		color: rgb(var(--accent));
+	}
+	.title {
+		margin: 0 0 0.3rem;
+		font-size: 1.25rem;
+	}
+	.date {
+		margin: 0 0 0.5rem;
+		color: rgb(var(--gray));
+		font-size: 0.875rem;
+	}
+	.desc {
+		margin: 0;
+		color: rgb(var(--gray-dark));
+		line-height: 1.6;
+	}
+</style>
