@@ -133,21 +133,36 @@ const ARTICLE_TOOL = {
 	},
 };
 
-async function generateArticle(client, item) {
-	const prompt = `あなたは子育て世帯向けの家計ブログの編集者です。以下のニュースを元に、シングルファザーや子育て家庭の読者が読みやすいブログ記事を日本語で書いてください。
-
-# 元ニュース
-- タイトル: ${item.title}
-- 出典: ${item.source}
-- URL: ${item.link}
-- 概要: ${item.contentSnippet}
+const STYLE_PROMPTS = {
+	detail: `あなたは子育て世帯向けの家計ブログの編集者です。以下のニュースを元に、シングルファザーや子育て家庭の読者が読みやすい「詳細版」ブログ記事を日本語で書いてください。
 
 # 要件
 - 800〜1200字程度
 - 子育て家庭への影響を必ず含める
 - 難しい制度名は噛み砕いて説明
 - 最後に「家計へのポイント」3つを箇条書き
-- 元記事の文章をそのまま転載しない（要約＋独自解説）
+- 元記事の文章をそのまま転載しない（要約＋独自解説）`,
+
+	kids: `あなたは子育て世帯向けの家計ブログの編集者です。以下のニュースを元に、**小学生でも理解できるやさしい言葉**でブログ記事を日本語で書いてください。
+
+# 要件
+- 600〜900字程度
+- 専門用語は絶対に使わず、使う場合は必ず「○○っていうのはね…」と説明
+- 例え話や身近なシチュエーション（お小遣い、コンビニ、お菓子など）を使って説明
+- 「〜だよ」「〜なんだ」といった柔らかい文末
+- 最後に「おうちでの会話のタネに」として、家族で話せる質問2〜3個を箇条書き
+- タイトルの頭に「【やさしい版】」を付ける`,
+};
+
+async function generateArticle(client, item, style) {
+	const stylePrompt = STYLE_PROMPTS[style];
+	const prompt = `${stylePrompt}
+
+# 元ニュース
+- タイトル: ${item.title}
+- 出典: ${item.source}
+- URL: ${item.link}
+- 概要: ${item.contentSnippet}
 
 write_blog_articleツールを使って記事を出力してください。`;
 
@@ -175,24 +190,29 @@ function slugify(date, index) {
 }
 
 /**
- * Markdownファイルとして保存
+ * Markdownファイルとして保存（詳細版/やさしい版のペア対応）
  */
-async function writePost({ article, item, date, index }) {
+async function writePost({ article, item, slug, pairedSlug, style }) {
 	await fs.mkdir(OUTPUT_DIR, { recursive: true });
-	const slug = slugify(date, index);
-	const iso = date.toISOString();
+	const iso = new Date().toISOString();
 	const escapedTitle = article.title.replace(/'/g, "''");
 	const escapedDesc = article.description.replace(/'/g, "''");
-	const frontmatter = [
+	const frontmatterLines = [
 		'---',
 		`title: '${escapedTitle}'`,
 		`description: '${escapedDesc}'`,
 		`pubDate: '${iso}'`,
 		`sourceName: '${item.source}'`,
 		`sourceUrl: '${item.link}'`,
-		'---',
-		'',
-	].join('\n');
+	];
+	// 詳細版なら kidsVersion、やさしい版なら detailVersion
+	if (style === 'detail' && pairedSlug) {
+		frontmatterLines.push(`kidsVersion: '${pairedSlug}'`);
+	} else if (style === 'kids' && pairedSlug) {
+		frontmatterLines.push(`detailVersion: '${pairedSlug}'`);
+	}
+	frontmatterLines.push('---', '');
+	const frontmatter = frontmatterLines.join('\n');
 	const footer = [
 		'',
 		'---',
@@ -236,11 +256,31 @@ async function main() {
 	const today = new Date();
 	for (let i = 0; i < picks.length; i++) {
 		const item = picks[i];
+		const detailSlug = slugify(today, i + 1);
+		const kidsSlug = `${detailSlug}-kids`;
 		console.log(`\n[${i + 1}/${picks.length}] ${item.source}: ${item.title}`);
 		try {
-			const article = await generateArticle(client, item);
-			const filePath = await writePost({ article, item, date: today, index: i + 1 });
-			console.log(`  ✔ 保存: ${path.relative(ROOT, filePath)}`);
+			// 詳細版
+			const detail = await generateArticle(client, item, 'detail');
+			const detailPath = await writePost({
+				article: detail,
+				item,
+				slug: detailSlug,
+				pairedSlug: kidsSlug,
+				style: 'detail',
+			});
+			console.log(`  ✔ 詳細版: ${path.relative(ROOT, detailPath)}`);
+
+			// やさしい版
+			const kids = await generateArticle(client, item, 'kids');
+			const kidsPath = await writePost({
+				article: kids,
+				item,
+				slug: kidsSlug,
+				pairedSlug: detailSlug,
+				style: 'kids',
+			});
+			console.log(`  ✔ やさしい版: ${path.relative(ROOT, kidsPath)}`);
 		} catch (err) {
 			console.error(`  ✖ 失敗: ${err.message}`);
 		}
