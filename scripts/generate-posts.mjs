@@ -192,12 +192,14 @@ write_blog_articleツールを使って記事を出力してください。`;
 }
 
 /**
- * ファイル名用のスラッグを生成
+ * ファイル名用のスラッグを生成（JST基準）
  */
 function slugify(date, index) {
-	const y = date.getFullYear();
-	const m = String(date.getMonth() + 1).padStart(2, '0');
-	const d = String(date.getDate()).padStart(2, '0');
+	// UTC→JSTに変換（+9時間）
+	const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+	const y = jst.getUTCFullYear();
+	const m = String(jst.getUTCMonth() + 1).padStart(2, '0');
+	const d = String(jst.getUTCDate()).padStart(2, '0');
 	return `${y}-${m}-${d}-${index}`;
 }
 
