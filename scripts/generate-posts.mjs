@@ -295,6 +295,19 @@ async function main() {
 		console.error('ANTHROPIC_API_KEY が未設定です');
 		process.exit(1);
 	}
+
+	// 多重cron用の重複防止: 今日の記事 (YYYY-MM-DD-1.md) が既にあれば終了
+	const todayCheck = new Date();
+	const todaySlug = slugify(todayCheck, 1);
+	const todayFile = path.join(OUTPUT_DIR, `${todaySlug}.md`);
+	try {
+		await fs.access(todayFile);
+		console.log(`今日の記事 (${todaySlug}.md) は既に生成済み。スキップして終了。`);
+		return;
+	} catch {
+		// ファイルなし、続行
+	}
+
 	const client = new Anthropic({ apiKey });
 
 	console.log('RSS取得中...');

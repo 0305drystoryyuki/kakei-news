@@ -2,8 +2,11 @@ name: Daily posts
 
 on:
   schedule:
-    # 毎日 22:17 UTC = 日本時間 07:17 に実行（混雑回避のため :00 を避ける）
-    - cron: '17 22 * * *'
+    # GitHub Actionsのcronは不安定なため、朝の時間帯に複数回スケジュール
+    # スクリプト側で「今日の記事が既にあれば終了」する重複防止を入れている
+    - cron: '17 22 * * *' # JST 07:17
+    - cron: '17 23 * * *' # JST 08:17
+    - cron: '17 0 * * *'  # JST 09:17
   workflow_dispatch: # 手動実行も可能
 
 permissions:
