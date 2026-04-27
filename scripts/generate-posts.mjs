@@ -268,21 +268,30 @@ async function postToWordPress({ kidsArticle, detailSlug, item }) {
 	const endpoint = `${wpUrl.replace(/\/$/, '')}/wp-json/wp/v2/posts`;
 	const auth = Buffer.from(`${wpUser}:${wpPass.replace(/\s/g, '')}`).toString('base64');
 
-	const resp = await fetch(endpoint, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Basic ${auth}`,
-		},
-		body: JSON.stringify({
-			title: kidsArticle.title,
-			content: bodyHtml + footer,
-			excerpt: kidsArticle.description,
-			status: WP_STATUS,
-			categories: [WP_CATEGORY_ID],
-			featured_media: WP_FEATURED_MEDIA_ID,
-		}),
-	});
+	// 30秒でタイムアウト（fetchはデフォルトでは無限に待つ）
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 30000);
+	let resp;
+	try {
+		resp = await fetch(endpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Basic ${auth}`,
+			},
+			body: JSON.stringify({
+				title: kidsArticle.title,
+				content: bodyHtml + footer,
+				excerpt: kidsArticle.description,
+				status: WP_STATUS,
+				categories: [WP_CATEGORY_ID],
+				featured_media: WP_FEATURED_MEDIA_ID,
+			}),
+			signal: controller.signal,
+		});
+	} finally {
+		clearTimeout(timeoutId);
+	}
 	if (!resp.ok) {
 		const text = await resp.text();
 		throw new Error(`WP投稿失敗 ${resp.status}: ${text.slice(0, 200)}`);
