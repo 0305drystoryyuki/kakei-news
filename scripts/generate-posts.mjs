@@ -319,7 +319,11 @@ async function main() {
 		// ファイルなし、続行
 	}
 
-	const client = new Anthropic({ apiKey });
+	const client = new Anthropic({
+		apiKey,
+		timeout: 60_000, // 60秒タイムアウト（デフォルトは10分）
+		maxRetries: 1, // リトライ1回まで（デフォルト2回）
+	});
 
 	console.log('RSS取得中...');
 	const items = await fetchAllFeeds();
