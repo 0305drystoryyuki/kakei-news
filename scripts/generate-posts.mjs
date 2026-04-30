@@ -63,8 +63,10 @@ const SITE_BASE_URL = 'https://0305drystoryyuki.github.io/kakei-news';
 
 // WordPress設定
 const WP_CATEGORY_ID = 9; // 「お勉強」カテゴリ
-const WP_STATUS = 'draft'; // draft または publish
 const WP_FEATURED_MEDIA_ID = 336; // アイキャッチ画像のメディアID
+// 'draft' = 下書き / 'future' = 予約投稿（PUBLISH_HOUR_JST に自動公開）/ 'publish' = 即公開
+const WP_STATUS = 'future';
+const PUBLISH_HOUR_JST = 9; // 当日の何時(JST)に公開するか
 
 // 新ブログ用アイキャッチ画像パス（frontmatterに書き込む相対パス）
 const HERO_IMAGE_PATH = '../../assets/featured.png';
@@ -241,7 +243,32 @@ async function writePost({ article, item, slug, pairedSlug, style }) {
 }
 
 /**
- * WordPressにやさしい版の記事を投稿する（下書き）
+ * WordPress予約投稿の公開日時（GMT）を計算
+ * 当日のJST PUBLISH_HOUR_JST 時。既に過ぎていれば翌日。
+ * 戻り値は WP API が要求する `YYYY-MM-DDTHH:MM:SS` 形式（UTC）
+ */
+function computePublishDateGmt() {
+	const now = new Date();
+	const jstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+	// 当日(JST)の PUBLISH_HOUR_JST 時 を UTC で構築
+	const target = new Date(
+		Date.UTC(
+			jstNow.getUTCFullYear(),
+			jstNow.getUTCMonth(),
+			jstNow.getUTCDate(),
+			PUBLISH_HOUR_JST - 9, // JST -> UTC
+			0,
+			0,
+		),
+	);
+	if (target.getTime() <= now.getTime()) {
+		target.setUTCDate(target.getUTCDate() + 1);
+	}
+	return target.toISOString().replace(/\.\d+Z$/, '');
+}
+
+/**
+ * WordPressにやさしい版の記事を投稿する（下書き or 予約）
  */
 async function postToWordPress({ kidsArticle, detailSlug, item }) {
 	const wpUrl = process.env.WP_URL;
@@ -286,6 +313,7 @@ async function postToWordPress({ kidsArticle, detailSlug, item }) {
 				status: WP_STATUS,
 				categories: [WP_CATEGORY_ID],
 				featured_media: WP_FEATURED_MEDIA_ID,
+				...(WP_STATUS === 'future' ? { date_gmt: computePublishDateGmt() } : {}),
 			}),
 			signal: controller.signal,
 		});
