@@ -5,8 +5,25 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <header>
-	<nav>
-		<h2><a href={base}>{SITE_TITLE}</a></h2>
+	<nav class="container">
+		<a href={base} class="brand">
+			<span class="brand-icon" aria-hidden="true">
+				<!-- 豚さん貯金箱 SVG（家計＝節約のシンボル） -->
+				<svg viewBox="0 0 64 64" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="32" cy="32" r="30" fill="#f5c75c"/>
+					<ellipse cx="32" cy="36" rx="20" ry="14" fill="#fff"/>
+					<circle cx="26" cy="34" r="2.2" fill="#1f2a24"/>
+					<circle cx="38" cy="34" r="2.2" fill="#1f2a24"/>
+					<rect x="29" y="40" width="6" height="2" rx="1" fill="#2d6e4f"/>
+					<path d="M22 28 Q21 22 27 22" stroke="#2d6e4f" stroke-width="2" fill="none" stroke-linecap="round"/>
+					<path d="M42 28 Q43 22 37 22" stroke="#2d6e4f" stroke-width="2" fill="none" stroke-linecap="round"/>
+				</svg>
+			</span>
+			<span class="brand-text">
+				<span class="brand-title">家計ニュース</span>
+				<span class="brand-sub">子育て家庭のお金情報</span>
+			</span>
+		</a>
 		<div class="internal-links">
 			<HeaderLink href={base}>ホーム</HeaderLink>
 			<HeaderLink href={`${base}blog/`.replace(/\/+/g, '/')}>記事一覧</HeaderLink>
@@ -14,44 +31,92 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 		</div>
 	</nav>
 </header>
+
 <style>
 	header {
-		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		background: linear-gradient(180deg, #2d6e4f 0%, #1f5239 100%);
+		box-shadow: 0 2px 12px rgba(31, 82, 57, 0.25);
+		position: sticky;
+		top: 0;
+		z-index: 50;
 	}
-	h2 {
-		margin: 0;
-		font-size: 1em;
-	}
-
-	h2 a,
-	h2 a.active {
-		text-decoration: none;
-	}
-	nav {
+	.container {
+		width: 1080px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 0.6em 0;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 1em;
 	}
-	nav a {
-		padding: 1em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
-		text-decoration: none;
-	}
-	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
-	}
-	.social-links,
-	.social-links a {
+	.brand {
 		display: flex;
+		align-items: center;
+		gap: 0.7em;
+		text-decoration: none;
+		color: #faf7ee;
+	}
+	.brand-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		background: rgba(255, 255, 255, 0.12);
+		border-radius: 50%;
+		transition: transform 0.2s ease;
+	}
+	.brand:hover .brand-icon {
+		transform: rotate(-8deg) scale(1.05);
+	}
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.15;
+	}
+	.brand-title {
+		font-size: 1.2rem;
+		font-weight: 800;
+		letter-spacing: 0.02em;
+	}
+	.brand-sub {
+		font-size: 0.75rem;
+		color: #f5c75c;
+		font-weight: 500;
+		margin-top: 2px;
+	}
+	.internal-links {
+		display: flex;
+		gap: 0.3em;
+		flex-wrap: wrap;
+	}
+	.internal-links :global(a) {
+		display: inline-block;
+		padding: 0.45em 0.9em;
+		color: #faf7ee;
+		font-weight: 500;
+		font-size: 0.95rem;
+		border-radius: 999px;
+		text-decoration: none;
+		border: none;
+		transition: 0.2s ease;
+	}
+	.internal-links :global(a:hover),
+	.internal-links :global(a.active) {
+		background: rgba(245, 199, 92, 0.2);
+		color: #f5c75c;
 	}
 	@media (max-width: 720px) {
-		.social-links {
+		.brand-sub {
 			display: none;
+		}
+		.brand-title {
+			font-size: 1rem;
+		}
+		.internal-links :global(a) {
+			padding: 0.35em 0.6em;
+			font-size: 0.85rem;
 		}
 	}
 </style>

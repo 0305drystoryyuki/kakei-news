@@ -19,33 +19,89 @@ const posts = (await getCollection('blog'))
 	</head>
 	<body>
 		<Header />
-		<main>
-			<section class="hero">
-				<h1>家計ニュース</h1>
-				<p class="lead">
-					シングルファザー・子育て家庭に役立つお金のニュースを、毎日AIが要約してお届け。
-					制度改正・補助金・家計術・資産形成など、家族の暮らしに直結する話題を厳選しています。
-				</p>
-			</section>
 
+		<section class="hero">
+			<div class="hero-inner">
+				<div class="hero-text">
+					<span class="hero-tag">毎日 8:00 自動更新</span>
+					<h1>家計ニュース、<br/>子育て世帯の<span class="highlight">"わかる"</span>から始める。</h1>
+					<p class="hero-lead">
+						シングルファザー・子育て家庭に役立つお金のニュースを、AIが要約してお届け。
+						制度改正・補助金・家計術・資産形成など、家族の暮らしに直結する話題を厳選しています。
+					</p>
+					<div class="hero-cta">
+						<a class="btn btn-primary" href={`${base}blog/`.replace(/\/+/g, '/')}>記事一覧を見る</a>
+						<a class="btn btn-secondary" href={`${base}about/`.replace(/\/+/g, '/')}>このサイトについて</a>
+					</div>
+				</div>
+				<div class="hero-visual" aria-hidden="true">
+					<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+						<!-- 家のシルエット -->
+						<rect x="40" y="100" width="140" height="90" rx="6" fill="#faf7ee"/>
+						<polygon points="30,110 110,40 190,110" fill="#f5c75c"/>
+						<rect x="100" y="135" width="20" height="35" fill="#2d6e4f"/>
+						<rect x="60" y="120" width="22" height="22" fill="#d8e7dc" stroke="#2d6e4f" stroke-width="2"/>
+						<rect x="138" y="120" width="22" height="22" fill="#d8e7dc" stroke="#2d6e4f" stroke-width="2"/>
+						<!-- 円コイン -->
+						<circle cx="170" cy="60" r="22" fill="#f5c75c" stroke="#fff" stroke-width="3"/>
+						<text x="170" y="68" text-anchor="middle" font-size="24" font-weight="800" fill="#2d6e4f">¥</text>
+						<!-- 葉飾り -->
+						<path d="M30 180 Q20 170 25 158 Q35 165 30 180Z" fill="#4d9970"/>
+						<path d="M195 180 Q205 170 200 158 Q190 165 195 180Z" fill="#4d9970"/>
+					</svg>
+				</div>
+			</div>
+		</section>
+
+		<main>
 			<section class="latest">
-				<h2>新着記事</h2>
-				{posts.length === 0 && <p>まだ記事がありません。明日朝8時の自動更新をお待ちください。</p>}
-				<ul>
+				<div class="section-head">
+					<h2>新着記事</h2>
+					<a class="see-all" href={`${base}blog/`.replace(/\/+/g, '/')}>すべて見る →</a>
+				</div>
+				{posts.length === 0 && <p class="empty">まだ記事がありません。明日朝8時の自動更新をお待ちください。</p>}
+				<ul class="post-grid">
 					{
 						posts.map((post) => (
-							<li>
+							<li class="post-card">
 								<a href={`${base}blog/${post.id}/`.replace(/\/+/g, '/')}>
-									<h3 class="title">{post.data.title}</h3>
-									<p class="date">
+									<p class="card-date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
-									<p class="desc">{post.data.description}</p>
+									<h3 class="card-title">{post.data.title}</h3>
+									<p class="card-desc">{post.data.description}</p>
+									<span class="card-more">続きを読む →</span>
 								</a>
 							</li>
 						))
 					}
 				</ul>
+			</section>
+
+			<section class="topics">
+				<h2>このサイトで扱うテーマ</h2>
+				<div class="topic-grid">
+					<div class="topic">
+						<span class="topic-icon">🏛️</span>
+						<h4>制度改正・補助金</h4>
+						<p>児童手当・教育無償化・支援金など</p>
+					</div>
+					<div class="topic">
+						<span class="topic-icon">💰</span>
+						<h4>家計・節約</h4>
+						<p>毎月の固定費・食費・節約術</p>
+					</div>
+					<div class="topic">
+						<span class="topic-icon">📈</span>
+						<h4>資産形成</h4>
+						<p>新NISA・iDeCo・資産運用</p>
+					</div>
+					<div class="topic">
+						<span class="topic-icon">🏥</span>
+						<h4>住宅・教育・医療</h4>
+						<p>暮らしに直結する大きな出費</p>
+					</div>
+				</div>
 			</section>
 		</main>
 		<Footer />
@@ -53,58 +109,218 @@ const posts = (await getCollection('blog'))
 </html>
 
 <style>
+	/* HERO */
 	.hero {
-		padding: 2rem 0 1.5rem;
-		border-bottom: 1px solid rgba(var(--gray-light), 0.5);
-		margin-bottom: 2rem;
+		background: linear-gradient(135deg, #d8e7dc 0%, #fff3d4 100%);
+		padding: 3rem 1rem 3.5rem;
+		border-bottom: 1px solid var(--brand-border);
+	}
+	.hero-inner {
+		width: 1080px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: 1.4fr 1fr;
+		gap: 2rem;
+		align-items: center;
+	}
+	.hero-tag {
+		display: inline-block;
+		padding: 0.3rem 0.9rem;
+		background: var(--brand-green);
+		color: #faf7ee;
+		font-size: 0.8rem;
+		font-weight: 700;
+		border-radius: 999px;
+		margin-bottom: 1rem;
+		letter-spacing: 0.05em;
 	}
 	.hero h1 {
-		margin: 0 0 0.5rem;
-		font-size: 2.5rem;
+		font-size: 2.4rem;
+		line-height: 1.35;
+		margin: 0 0 1rem;
+		color: var(--brand-green-dark);
 	}
-	.lead {
+	.hero h1 .highlight {
+		background: linear-gradient(transparent 60%, var(--brand-yellow) 60%);
+		padding: 0 0.1em;
+	}
+	.hero-lead {
+		font-size: 1rem;
+		color: var(--text-main);
+		line-height: 1.8;
+		margin-bottom: 1.5rem;
+	}
+	.hero-cta {
+		display: flex;
+		gap: 0.7rem;
+		flex-wrap: wrap;
+	}
+	.btn {
+		display: inline-block;
+		padding: 0.7rem 1.4rem;
+		border-radius: 999px;
+		font-weight: 700;
+		text-decoration: none;
+		transition: 0.2s ease;
+		font-size: 0.95rem;
+	}
+	.btn-primary {
+		background: var(--brand-green);
+		color: #faf7ee;
+	}
+	.btn-primary:hover {
+		background: var(--brand-green-dark);
+		transform: translateY(-1px);
+		text-decoration: none;
+	}
+	.btn-secondary {
+		background: #faf7ee;
+		color: var(--brand-green-dark);
+		border: 2px solid var(--brand-green);
+	}
+	.btn-secondary:hover {
+		background: var(--brand-green-soft);
+		text-decoration: none;
+	}
+	.hero-visual {
+		display: flex;
+		justify-content: center;
+	}
+	.hero-visual svg {
+		width: 100%;
+		max-width: 260px;
+		height: auto;
+	}
+
+	/* LATEST */
+	.section-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+	}
+	.section-head h2 {
 		margin: 0;
-		color: rgb(var(--gray-dark));
-		line-height: 1.7;
 	}
-	.latest h2 {
-		font-size: 1.5rem;
-		margin-bottom: 1rem;
+	.see-all {
+		font-size: 0.9rem;
+		font-weight: 700;
+		color: var(--brand-green);
+		text-decoration: none;
 	}
-	.latest ul {
+	.see-all:hover {
+		color: var(--brand-green-dark);
+	}
+	.post-grid {
 		list-style: none;
 		padding: 0;
 		margin: 0;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
 	}
-	.latest li {
-		margin-bottom: 1.5rem;
-		padding-bottom: 1.5rem;
-		border-bottom: 1px solid rgba(var(--gray-light), 0.5);
-	}
-	.latest li:last-child {
-		border-bottom: none;
-	}
-	.latest a {
-		display: block;
-		text-decoration: none;
-		color: inherit;
+	.post-card {
+		background: var(--brand-card);
+		border: 1px solid var(--brand-border);
+		border-radius: 14px;
+		padding: 1.2rem 1.4rem;
 		transition: 0.2s ease;
 	}
-	.latest a:hover .title {
-		color: rgb(var(--accent));
+	.post-card:hover {
+		border-color: var(--brand-green-light);
+		box-shadow: 0 6px 18px rgba(45, 110, 79, 0.12);
+		transform: translateY(-2px);
 	}
-	.title {
-		margin: 0 0 0.3rem;
-		font-size: 1.25rem;
+	.post-card a {
+		text-decoration: none;
+		color: inherit;
+		display: block;
 	}
-	.date {
+	.card-date {
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		margin: 0 0 0.4rem;
+	}
+	.card-title {
+		font-size: 1.1rem;
 		margin: 0 0 0.5rem;
-		color: rgb(var(--gray));
-		font-size: 0.875rem;
+		line-height: 1.4;
+		color: var(--brand-green-dark);
 	}
-	.desc {
-		margin: 0;
-		color: rgb(var(--gray-dark));
+	.post-card:hover .card-title {
+		text-decoration: underline;
+		text-decoration-color: var(--brand-yellow);
+	}
+	.card-desc {
+		font-size: 0.92rem;
+		color: var(--text-main);
+		margin: 0 0 0.7rem;
 		line-height: 1.6;
+	}
+	.card-more {
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: var(--brand-green);
+	}
+	.empty {
+		padding: 2rem;
+		text-align: center;
+		background: var(--brand-card);
+		border-radius: 12px;
+		color: var(--text-muted);
+	}
+
+	/* TOPICS */
+	.topics {
+		margin-top: 3.5rem;
+	}
+	.topic-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1rem;
+		margin-top: 1.2rem;
+	}
+	.topic {
+		background: var(--brand-card);
+		border: 1px solid var(--brand-border);
+		border-radius: 14px;
+		padding: 1.2rem 1rem;
+		text-align: center;
+	}
+	.topic-icon {
+		font-size: 2rem;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+	.topic h4 {
+		margin: 0 0 0.3rem;
+		font-size: 1rem;
+		color: var(--brand-green-dark);
+	}
+	.topic p {
+		margin: 0;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		line-height: 1.5;
+	}
+
+	@media (max-width: 720px) {
+		.hero-inner {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+		}
+		.hero h1 {
+			font-size: 1.8rem;
+		}
+		.hero-visual svg {
+			max-width: 200px;
+		}
+		.post-grid {
+			grid-template-columns: 1fr;
+		}
+		.topic-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 </style>

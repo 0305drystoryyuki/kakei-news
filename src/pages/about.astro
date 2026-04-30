@@ -1,40 +1,211 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
 ---
 
-<Layout
-	title="このサイトについて"
-	description="家計ニュースの運営方針とコンテンツ生成の仕組み"
-	pubDate={new Date('2026-04-24')}
->
-	<h2>サイトの目的</h2>
-	<p>
-		子育てをしている家庭、特にシングルファザー・シングルマザーや共働き世帯が、毎日押し寄せるニュースの中から
-		<strong>家計に直結する情報だけ</strong>を効率よくキャッチできるように立ち上げました。
-	</p>
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title={`このサイトについて｜${SITE_TITLE}`} description="家計ニュースの運営方針とコンテンツ生成の仕組み" />
+	</head>
+	<body>
+		<Header />
 
-	<h2>扱うテーマ</h2>
-	<ul>
-		<li>制度改正・補助金（児童手当、子ども・子育て支援金、教育無償化など）</li>
-		<li>税金・社会保険料の動向</li>
-		<li>家計術・節約のヒント</li>
-		<li>新NISA・iDeCoなど資産形成</li>
-		<li>住宅・教育費・医療費に関わる経済ニュース</li>
-	</ul>
+		<section class="page-hero">
+			<div class="page-hero-inner">
+				<span class="hero-tag">About</span>
+				<h1>このサイトについて</h1>
+				<p>子育て世帯のお金と暮らしを、毎日やさしく届けます。</p>
+			</div>
+		</section>
 
-	<h2>記事の生成について</h2>
-	<p>
-		本サイトの記事は、公的機関や大手ニュースメディアのRSSフィードから収集したニュースを元に、
-		AI（Claude）が要約・解説したものです。正確な情報については必ず元記事や公式情報をご確認ください。
-	</p>
-	<p>
-		AIによる自動生成のため、情報が古かったり誤りを含む可能性があります。
-		重要な判断は専門家や公式窓口にご相談ください。
-	</p>
+		<main>
+			<!-- 運営者プロフィール -->
+			<section class="profile">
+				<div class="profile-card">
+					<div class="profile-avatar" aria-hidden="true">
+						<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="50" cy="50" r="48" fill="#f5c75c"/>
+							<circle cx="50" cy="42" r="18" fill="#faf7ee"/>
+							<path d="M20 90 Q20 65 50 65 Q80 65 80 90 Z" fill="#2d6e4f"/>
+							<circle cx="44" cy="40" r="2" fill="#1f2a24"/>
+							<circle cx="56" cy="40" r="2" fill="#1f2a24"/>
+							<path d="M44 50 Q50 54 56 50" stroke="#1f2a24" stroke-width="2" fill="none" stroke-linecap="round"/>
+						</svg>
+					</div>
+					<div class="profile-body">
+						<p class="profile-role">運営者</p>
+						<h2 class="profile-name">ゆきち</h2>
+						<p class="profile-bio">
+							シングルファザー × トラックドライバー × 家計研究中。
+							娘との暮らしを軸に、節約・資産形成・お金のニュースをまとめています。
+						</p>
+						<ul class="profile-tags">
+							<li>📰 経済ニュースを毎日要約</li>
+							<li>🍳 自炊で食費月3万円台</li>
+							<li>📊 NISA・iDeCo実践中</li>
+						</ul>
+					</div>
+				</div>
+			</section>
 
-	<h2>免責事項</h2>
-	<p>
-		掲載情報の正確性・完全性について保証するものではありません。本サイトの情報を元に行った判断・行動によって
-		生じたいかなる損害についても、運営者は責任を負いかねます。
-	</p>
-</Layout>
+			<section class="about-block">
+				<h2>サイトの目的</h2>
+				<p>
+					子育てをしている家庭、特にシングルファザー・シングルマザーや共働き世帯が、毎日押し寄せるニュースの中から
+					<strong>家計に直結する情報だけ</strong>を効率よくキャッチできるように立ち上げました。
+				</p>
+			</section>
+
+			<section class="about-block">
+				<h2>扱うテーマ</h2>
+				<ul class="theme-list">
+					<li>制度改正・補助金（児童手当、子ども・子育て支援金、教育無償化など）</li>
+					<li>税金・社会保険料の動向</li>
+					<li>家計術・節約のヒント</li>
+					<li>新NISA・iDeCoなど資産形成</li>
+					<li>住宅・教育費・医療費に関わる経済ニュース</li>
+				</ul>
+			</section>
+
+			<section class="about-block">
+				<h2>記事の生成について</h2>
+				<p>
+					本サイトの記事は、公的機関や大手ニュースメディアのRSSフィードから収集したニュースを元に、
+					AI（Claude）が要約・解説したものです。正確な情報については必ず元記事や公式情報をご確認ください。
+				</p>
+				<p>
+					AIによる自動生成のため、情報が古かったり誤りを含む可能性があります。
+					重要な判断は専門家や公式窓口にご相談ください。
+				</p>
+			</section>
+
+			<section class="about-block">
+				<h2>免責事項</h2>
+				<p>
+					掲載情報の正確性・完全性について保証するものではありません。本サイトの情報を元に行った判断・行動によって
+					生じたいかなる損害についても、運営者は責任を負いかねます。
+				</p>
+			</section>
+		</main>
+
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.page-hero {
+		background: linear-gradient(135deg, #d8e7dc 0%, #fff3d4 100%);
+		padding: 2.5rem 1rem 3rem;
+		border-bottom: 1px solid var(--brand-border);
+	}
+	.page-hero-inner {
+		width: 1080px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+	}
+	.hero-tag {
+		display: inline-block;
+		padding: 0.3rem 0.9rem;
+		background: var(--brand-green);
+		color: #faf7ee;
+		font-size: 0.8rem;
+		font-weight: 700;
+		border-radius: 999px;
+		margin-bottom: 0.8rem;
+		letter-spacing: 0.05em;
+	}
+	.page-hero h1 {
+		font-size: 2rem;
+		margin: 0 0 0.5rem;
+		color: var(--brand-green-dark);
+	}
+	.page-hero p {
+		margin: 0;
+		color: var(--text-main);
+	}
+
+	.profile {
+		margin-bottom: 2.5rem;
+	}
+	.profile-card {
+		background: var(--brand-card);
+		border: 1px solid var(--brand-border);
+		border-radius: 16px;
+		padding: 1.5rem;
+		display: grid;
+		grid-template-columns: 120px 1fr;
+		gap: 1.5rem;
+		align-items: center;
+		box-shadow: 0 4px 14px rgba(45, 110, 79, 0.08);
+	}
+	.profile-avatar svg {
+		width: 100%;
+		height: auto;
+		max-width: 120px;
+	}
+	.profile-role {
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: var(--brand-green);
+		margin: 0 0 0.2rem;
+		letter-spacing: 0.05em;
+	}
+	.profile-name {
+		font-size: 1.6rem;
+		margin: 0 0 0.6rem;
+		color: var(--brand-green-dark);
+		border: none;
+		padding: 0;
+	}
+	.profile-bio {
+		margin: 0 0 0.8rem;
+		font-size: 0.95rem;
+		color: var(--text-main);
+		line-height: 1.7;
+	}
+	.profile-tags {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+	.profile-tags li {
+		background: var(--brand-green-soft);
+		color: var(--brand-green-dark);
+		padding: 0.3rem 0.8rem;
+		border-radius: 999px;
+		font-size: 0.82rem;
+		font-weight: 500;
+	}
+
+	.about-block {
+		margin-bottom: 2rem;
+	}
+	.theme-list {
+		padding-left: 1.2em;
+	}
+	.theme-list li {
+		margin-bottom: 0.4rem;
+	}
+
+	@media (max-width: 600px) {
+		.profile-card {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+		.profile-avatar {
+			justify-self: center;
+		}
+		.profile-tags {
+			justify-content: center;
+		}
+		.page-hero h1 {
+			font-size: 1.6rem;
+		}
+	}
+</style>

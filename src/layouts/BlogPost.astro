@@ -13,7 +13,7 @@ const { title, description, pubDate, updatedDate, heroImage, kidsVersion, detail
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
-<html lang="en">
+<html lang="ja">
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
@@ -21,57 +21,80 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 				width: calc(100% - 2em);
 				max-width: 100%;
 				margin: 0;
+				padding: 0;
 			}
 			.hero-image {
 				width: 100%;
+				margin-top: 2rem;
 			}
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				border-radius: 16px;
+				box-shadow: 0 6px 24px rgba(45, 110, 79, 0.15);
 			}
 			.prose {
-				width: 720px;
+				width: 760px;
 				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+				margin: 2rem auto 4rem;
+				padding: 2rem;
+				background: var(--brand-card);
+				border-radius: 16px;
+				border: 1px solid var(--brand-border);
+				color: var(--text-main);
+				line-height: 1.85;
+				box-shadow: 0 4px 14px rgba(45, 110, 79, 0.06);
 			}
 			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
+				margin-bottom: 1.5em;
+				padding-bottom: 1em;
+				border-bottom: 2px dashed var(--brand-border);
 			}
 			.title h1 {
-				margin: 0 0 0.5em 0;
+				margin: 0;
+				font-size: 1.8rem;
+				color: var(--brand-green-dark);
+				line-height: 1.4;
 			}
 			.date {
 				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				color: var(--text-muted);
+				font-size: 0.9rem;
 			}
 			.last-updated-on {
 				font-style: italic;
 			}
 			.pair-link {
-				display: inline-block;
-				margin: 1rem 0 1.5rem;
-				padding: 0.75rem 1.25rem;
-				background: rgba(var(--accent), 0.08);
-				border: 1px solid rgba(var(--accent), 0.3);
-				border-radius: 8px;
-				color: rgb(var(--accent));
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				margin: 0.75rem 0 1.25rem;
+				padding: 0.7rem 1.2rem;
+				background: var(--brand-green-soft);
+				border: 1.5px solid var(--brand-green-light);
+				border-radius: 999px;
+				color: var(--brand-green-dark);
 				text-decoration: none;
-				font-weight: 600;
+				font-weight: 700;
+				font-size: 0.92rem;
 				transition: 0.2s ease;
 			}
 			.pair-link:hover {
-				background: rgba(var(--accent), 0.15);
+				background: var(--brand-green);
+				color: #faf7ee;
 				transform: translateY(-1px);
+				text-decoration: none;
 			}
 			.pair-link .emoji {
-				margin-right: 0.5rem;
+				font-size: 1.2em;
+			}
+			@media (max-width: 720px) {
+				.prose {
+					padding: 1.2rem;
+				}
+				.title h1 {
+					font-size: 1.4rem;
+				}
 			}
 		</style>
 	</head>
