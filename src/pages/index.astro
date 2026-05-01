@@ -21,6 +21,8 @@ const posts = (await getCollection('blog'))
 		<Header />
 
 		<section class="hero">
+			<div class="hero-bg" aria-hidden="true"></div>
+			<div class="hero-overlay" aria-hidden="true"></div>
 			<div class="hero-inner">
 				<div class="hero-text">
 					<span class="hero-tag">毎日 8:00 自動更新</span>
@@ -33,22 +35,6 @@ const posts = (await getCollection('blog'))
 						<a class="btn btn-primary" href={`${base}blog/`.replace(/\/+/g, '/')}>記事一覧を見る</a>
 						<a class="btn btn-secondary" href={`${base}about/`.replace(/\/+/g, '/')}>このサイトについて</a>
 					</div>
-				</div>
-				<div class="hero-visual" aria-hidden="true">
-					<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
-						<!-- 家のシルエット -->
-						<rect x="40" y="100" width="140" height="90" rx="6" fill="#faf7ee"/>
-						<polygon points="30,110 110,40 190,110" fill="#f5c75c"/>
-						<rect x="100" y="135" width="20" height="35" fill="#2d6e4f"/>
-						<rect x="60" y="120" width="22" height="22" fill="#d8e7dc" stroke="#2d6e4f" stroke-width="2"/>
-						<rect x="138" y="120" width="22" height="22" fill="#d8e7dc" stroke="#2d6e4f" stroke-width="2"/>
-						<!-- 円コイン -->
-						<circle cx="170" cy="60" r="22" fill="#f5c75c" stroke="#fff" stroke-width="3"/>
-						<text x="170" y="68" text-anchor="middle" font-size="24" font-weight="800" fill="#2d6e4f">¥</text>
-						<!-- 葉飾り -->
-						<path d="M30 180 Q20 170 25 158 Q35 165 30 180Z" fill="#4d9970"/>
-						<path d="M195 180 Q205 170 200 158 Q190 165 195 180Z" fill="#4d9970"/>
-					</svg>
 				</div>
 			</div>
 		</section>
@@ -111,16 +97,33 @@ const posts = (await getCollection('blog'))
 <style>
 	/* HERO */
 	.hero {
-		background: linear-gradient(135deg, #d8e7dc 0%, #fff3d4 100%);
-		padding: 3rem 1rem 3.5rem;
+		position: relative;
+		padding: 5rem 1rem 5.5rem;
 		border-bottom: 1px solid var(--brand-border);
+		overflow: hidden;
+		isolation: isolate;
+	}
+	.hero-bg {
+		position: absolute;
+		inset: 0;
+		background-image: url('/kakei-news/hero-banner.png');
+		background-size: cover;
+		background-position: center right;
+		z-index: -2;
+	}
+	.hero-overlay {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(250, 247, 238, 0.96) 0%, rgba(250, 247, 238, 0.78) 45%, rgba(250, 247, 238, 0.05) 75%, rgba(250, 247, 238, 0) 100%);
+		z-index: -1;
 	}
 	.hero-inner {
 		width: 1080px;
 		max-width: calc(100% - 2em);
 		margin: 0 auto;
 		display: grid;
-		grid-template-columns: 1.4fr 1fr;
+		grid-template-columns: minmax(0, 600px);
 		gap: 2rem;
 		align-items: center;
 	}
@@ -182,15 +185,6 @@ const posts = (await getCollection('blog'))
 	.btn-secondary:hover {
 		background: var(--brand-green-soft);
 		text-decoration: none;
-	}
-	.hero-visual {
-		display: flex;
-		justify-content: center;
-	}
-	.hero-visual svg {
-		width: 100%;
-		max-width: 260px;
-		height: auto;
 	}
 
 	/* LATEST */
@@ -306,15 +300,19 @@ const posts = (await getCollection('blog'))
 	}
 
 	@media (max-width: 720px) {
+		.hero {
+			padding: 3rem 1rem 3.5rem;
+		}
+		.hero-overlay {
+			background:
+				linear-gradient(180deg, rgba(250, 247, 238, 0.92) 0%, rgba(250, 247, 238, 0.72) 100%);
+		}
 		.hero-inner {
 			grid-template-columns: 1fr;
 			gap: 1.5rem;
 		}
 		.hero h1 {
 			font-size: 1.8rem;
-		}
-		.hero-visual svg {
-			max-width: 200px;
 		}
 		.post-grid {
 			grid-template-columns: 1fr;
