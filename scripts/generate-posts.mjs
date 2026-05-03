@@ -210,7 +210,10 @@ function slugify(date, index) {
  */
 async function writePost({ article, item, slug, pairedSlug, style }) {
 	await fs.mkdir(OUTPUT_DIR, { recursive: true });
-	const iso = new Date().toISOString();
+	// JST タイムゾーン明示で保存（Astro が UTC で解釈して日付ズレるのを防ぐ）
+	const now = new Date();
+	const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+	const iso = jst.toISOString().slice(0, 19) + '+09:00';
 	const escapedTitle = article.title.replace(/'/g, "''");
 	const escapedDesc = article.description.replace(/'/g, "''");
 	const frontmatterLines = [
