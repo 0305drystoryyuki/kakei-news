@@ -57,3 +57,22 @@ kidsVersion: 'study-vol-1-kids'
 ---
 
 ※本記事は [シンパパ家計研究所](https://kizukeba-itametahi.com/%e3%81%8a%e5%8b%89%e5%bc%b7%e3%81%97%e3%81%be%e3%81%97%e3%82%87%e3%81%86vol-1/) からの転載です。
+
+---
+
+### 📚 家計・投資の基本を体系的に学ぶならこれ
+
+YouTube登録者数300万人超のリベ大両学長による、お金の悩みを根本から解決する一冊。「貯める・稼ぐ・増やす・守る・使う」5つの力を体系的に学べます。
+
+<!-- START MoshimoAffiliateEasyLink -->
+<script type="text/javascript">
+(function(b,c,f,g,a,d,e){b.MoshimoAffiliateObject=a;
+b[a]=b[a]||function(){arguments.currentScript=c.currentScript
+||c.scripts[c.scripts.length-2];(b[a].q=b[a].q||[]).push(arguments)};
+c.getElementById(a)||(d=c.createElement(f),d.src=g,
+d.id=a,e=c.getElementsByTagName("body")[0],e.appendChild(d))})
+(window,document,"script","//dn.msmstatic.com/site/cardlink/bundle.js?20220329","msmaflink");
+msmaflink({"n":"改訂版　本当の自由を手に入れる　お金の大学 [ 両＠リベ大学長 ]","b":"","t":"","d":"https:\/\/thumbnail.image.rakuten.co.jp","c_p":"\/@0_mall\/book\/cabinet\/3780","p":["\/9784023323780_1_5.jpg","\/9784023323780_2_4.jpg","\/9784023323780_3_3.jpg"],"u":{"u":"https:\/\/item.rakuten.co.jp\/book\/18041936\/","t":"rakuten","r_v":""},"v":"2.1","b_l":[{"id":1,"u_tx":"楽天市場で見る","u_bc":"#f76956","u_url":"https:\/\/item.rakuten.co.jp\/book\/18041936\/","a_id":5535091,"p_id":54,"pl_id":27059,"pc_id":54,"s_n":"rakuten","u_so":1}],"eid":"fCLbb","s":"s"});
+</script>
+<div id="msmaflink-fCLbb">リンク</div>
+<!-- MoshimoAffiliateEasyLink END -->
