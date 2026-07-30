@@ -25,6 +25,10 @@ const today = new Date();
 				掲載情報は要約のため、最終判断は公式情報をご確認ください。
 			</p>
 		</div>
+		<div class="footer-links">
+			<a href="https://note.com/shinpapa_kakeibo" target="_blank" rel="noopener noreferrer">▶ noteで家計コラム書いてます</a>
+			<a href="https://www.youtube.com/@shinpapa_kakeibo" target="_blank" rel="noopener noreferrer">▶ YouTube シンパパ家計研究所</a>
+		</div>
 		<div class="footer-copyright">
 			<p>&copy; {today.getFullYear()} 家計ニュース All rights reserved.</p>
 		</div>
@@ -81,6 +85,21 @@ const today = new Date();
 		font-size: 0.85rem;
 		line-height: 1.7;
 		color: #d8e7dc;
+	}
+	.footer-links {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 1.5em;
+		padding: 1.2em 0;
+		font-size: 0.82rem;
+	}
+	.footer-links a {
+		color: #f5c75c;
+		text-decoration: none;
+	}
+	.footer-links a:hover {
+		text-decoration: underline;
 	}
 	.footer-copyright {
 		text-align: center;
