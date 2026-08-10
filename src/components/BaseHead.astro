@@ -25,6 +25,16 @@ const { title, description, image = FallbackImage } = Astro.props;
 	function gtag(){dataLayer.push(arguments);}
 	gtag('js', new Date());
 	gtag('config', 'G-YMHH9WXNE6');
+
+	// 関連メディアへの送客をGA4で確認できるようにする。
+	document.addEventListener('click', function (event) {
+		const link = event.target.closest('[data-track]');
+		if (!link) return;
+		gtag('event', 'outbound_content_click', {
+			link_name: link.dataset.track,
+			link_url: link.href,
+		});
+	});
 </script>
 
 <!-- Global Metadata -->

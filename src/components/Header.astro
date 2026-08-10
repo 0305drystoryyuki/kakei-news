@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE } from '../consts';
+import { EXTERNAL_LINKS, SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
@@ -28,6 +28,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 			<HeaderLink href={base}>ホーム</HeaderLink>
 			<HeaderLink href={`${base}blog/`.replace(/\/+/g, '/')}>記事一覧</HeaderLink>
 			<HeaderLink href={`${base}about/`.replace(/\/+/g, '/')}>このサイトについて</HeaderLink>
+			<a class="external-link" href={EXTERNAL_LINKS.wordpress} target="_blank" rel="noopener" data-track="header_wordpress">運営ブログ ↗</a>
 		</div>
 	</nav>
 </header>
@@ -101,6 +102,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 		text-decoration: none;
 		border: none;
 		transition: 0.2s ease;
+	}
+	.internal-links .external-link {
+		border: 1px solid rgba(245, 199, 92, 0.55);
+		color: #f5c75c;
 	}
 	.internal-links :global(a:hover),
 	.internal-links :global(a.active) {

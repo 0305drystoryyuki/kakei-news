@@ -1,0 +1,123 @@
+---
+import { EXTERNAL_LINKS } from '../consts';
+
+interface Props {
+	compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<aside class:list={['project-links', { compact }]} aria-label="ゆきちの家計発信">
+	<div class="project-copy">
+		<p class="eyebrow">ニュースの先を、実際の家計へ</p>
+		<h2>シンパパ家計研究所の発信</h2>
+		{
+			!compact && (
+				<p>
+					制度や物価のニュースを、40代シンパパの家計ではどう受け止めるのか。
+					実際の暮らし・数字・行動は、こちらで発信しています。
+				</p>
+			)
+		}
+	</div>
+	<nav class="project-nav" aria-label="関連メディア">
+		<a href={EXTERNAL_LINKS.wordpress} target="_blank" rel="noopener" data-track="project_wordpress">
+			<span aria-hidden="true">🏠</span>
+			<span><strong>運営ブログ</strong><small>実際の家計と暮らし</small></span>
+		</a>
+		<a href={EXTERNAL_LINKS.note} target="_blank" rel="noopener" data-track="project_note">
+			<span aria-hidden="true">✍️</span>
+			<span><strong>note</strong><small>考えたことを深掘り</small></span>
+		</a>
+		<a href={EXTERNAL_LINKS.youtube} target="_blank" rel="noopener" data-track="project_youtube">
+			<span aria-hidden="true">▶️</span>
+			<span><strong>YouTube</strong><small>耳でもわかる家計の話</small></span>
+		</a>
+	</nav>
+</aside>
+
+<style>
+	.project-links {
+		width: 1080px;
+		max-width: calc(100% - 2em);
+		margin: 3rem auto;
+		padding: 1.6rem;
+		background: linear-gradient(135deg, #edf4ed 0%, #fff8e7 100%);
+		border: 1px solid var(--brand-border);
+		border-radius: 18px;
+		display: grid;
+		grid-template-columns: minmax(220px, 0.8fr) minmax(420px, 1.2fr);
+		gap: 1.4rem;
+		align-items: center;
+	}
+	.project-links.compact {
+		width: auto;
+		max-width: none;
+		margin: 2.5rem 0 0;
+		grid-template-columns: 1fr;
+	}
+	.project-copy .eyebrow {
+		margin: 0 0 0.3rem;
+		color: var(--brand-green);
+		font-size: 0.78rem;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+	}
+	.project-copy h2 {
+		margin: 0 0 0.5rem;
+		padding: 0;
+		border: 0;
+		font-size: 1.3rem;
+		color: var(--brand-green-dark);
+	}
+	.project-copy p:last-child {
+		margin: 0;
+		font-size: 0.9rem;
+		line-height: 1.7;
+	}
+	.project-nav {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.65rem;
+	}
+	.project-nav a {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		min-height: 74px;
+		padding: 0.8rem;
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid var(--brand-border);
+		border-radius: 12px;
+		color: var(--text-main);
+		text-decoration: none;
+		transition: 0.2s ease;
+	}
+	.project-nav a:hover {
+		border-color: var(--brand-green-light);
+		box-shadow: 0 5px 14px rgba(45, 110, 79, 0.12);
+		transform: translateY(-2px);
+	}
+	.project-nav strong,
+	.project-nav small {
+		display: block;
+	}
+	.project-nav strong {
+		color: var(--brand-green-dark);
+		font-size: 0.9rem;
+	}
+	.project-nav small {
+		margin-top: 0.12rem;
+		color: var(--text-muted);
+		font-size: 0.7rem;
+		line-height: 1.35;
+	}
+	@media (max-width: 800px) {
+		.project-links { grid-template-columns: 1fr; }
+	}
+	@media (max-width: 540px) {
+		.project-nav { grid-template-columns: 1fr; }
+		.project-nav a { min-height: 58px; }
+	}
+</style>
