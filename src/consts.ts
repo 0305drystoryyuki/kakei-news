@@ -10,5 +10,5 @@ export const SITE_DESCRIPTION =
 export const EXTERNAL_LINKS = {
 	wordpress: 'https://kizukeba-itametahi.com/',
 	note: 'https://note.com/shinpapa_kakeibo',
-	youtube: 'https://www.youtube.com/channel/UCokQAECkDGtNF6lHtPLdwsA',
+	youtube: 'https://www.youtube.com/@shinpapa_kakeibo',
 } as const;
