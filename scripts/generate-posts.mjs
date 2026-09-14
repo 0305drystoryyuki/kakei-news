@@ -68,11 +68,20 @@ const WP_FEATURED_MEDIA_ID = 336; // アイキャッチ画像のメディアID
 const WP_STATUS = 'future';
 const PUBLISH_HOUR_JST = 9; // 当日の何時(JST)に公開するか
 
-// 新ブログ用アイキャッチ画像（IF世界線36枚からランダム選択）
-const IF_WORLD_IMAGE_COUNT = 36;
+// 新ブログ用アイキャッチ画像（IF世界線シリーズからランダム選択）
+// 抽選対象を明示リストで管理する（連番の自動生成はしない）。
+// - if_01 は別ブログ用の画像が混入していたため削除済み（2026-09-15）
+// - if_09/10/11/12/34/36 は他の番号と同一バイトの重複なので抽選から除外（既存記事の参照用にファイルは残す）
+// 画像を追加するときは、あゆみ先輩のIF世界線画像であることを目視確認してからこのリストに足す。
+const IF_WORLD_HERO_IMAGES = [
+	'if_02', 'if_03', 'if_04', 'if_05', 'if_06', 'if_07', 'if_08',
+	'if_13', 'if_14', 'if_15', 'if_16', 'if_17', 'if_18', 'if_19', 'if_20',
+	'if_21', 'if_22', 'if_23', 'if_24', 'if_25', 'if_26', 'if_27', 'if_28',
+	'if_29', 'if_30', 'if_31', 'if_32', 'if_33', 'if_35',
+];
 function getRandomHeroImage() {
-	const idx = Math.floor(Math.random() * IF_WORLD_IMAGE_COUNT) + 1;
-	return `../../assets/if_world/if_${String(idx).padStart(2, '0')}.png`;
+	const name = IF_WORLD_HERO_IMAGES[Math.floor(Math.random() * IF_WORLD_HERO_IMAGES.length)];
+	return `../../assets/if_world/${name}.png`;
 }
 
 /**
