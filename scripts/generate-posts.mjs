@@ -14,12 +14,15 @@ import Parser from 'rss-parser';
 import { marked } from 'marked';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 const OUTPUT_DIR = path.join(ROOT, 'src/content/blog');
+// ちびっ子向けYouTube台本の置き場。`src/content/` の外にあるので Astro のコンテンツ
+// コレクション（glob base: ./src/content/blog）には拾われず、サイトにはビルドされない。
+const KIDS_SCRIPTS_DIR = path.join(ROOT, 'kids-scripts');
 
 // 子育て家庭向けに厳選したRSSソース
 const RSS_FEEDS = [
@@ -57,6 +60,8 @@ const KEYWORDS = [
 
 const MAX_POSTS_PER_DAY = 2;
 const MODEL = 'claude-sonnet-4-5';
+const ARTICLE_MAX_TOKENS = 4000; // 記事（詳細版・やさしい版）用
+const KIDS_SCRIPT_MAX_TOKENS = 16000; // 台本用（5,000〜10,000字を出しきるため）
 
 // 公開サイトのURL（詳細版へのリンクに使用）
 const SITE_BASE_URL = 'https://0305drystoryyuki.github.io/kakei-news';
@@ -160,6 +165,63 @@ const ARTICLE_TOOL = {
 	},
 };
 
+/**
+ * 台本（ちびっ子向けYouTubeの語り台本）用のtool定義。
+ * 記事用の write_blog_article とは別物（descriptionを持たず、本文がとても長い）。
+ */
+const KIDS_SCRIPT_TOOL = {
+	name: 'write_kids_script',
+	description: 'ちびっ子向けYouTubeの語り台本を書く',
+	input_schema: {
+		type: 'object',
+		properties: {
+			title: {
+				type: 'string',
+				description: '動画タイトルとして成立する形（30字以内）。「【やさしい版】」は付けない',
+			},
+			body: {
+				type: 'string',
+				description: 'Markdown形式の台本本文。見出しは ## から使う。5,000〜10,000字',
+			},
+		},
+		required: ['title', 'body'],
+	},
+};
+
+const KIDS_SCRIPT_PROMPT = `あなたは、ちびっ子向けYouTubeチャンネルの構成作家です。
+以下のニュースを題材に、小学校高学年〜中学生に語りかける**語り台本**を日本語で書いてください。
+これはYouTube動画の語りの源泉です。ブログ記事ではないので、長さを惜しまず、たっぷり書いてください。
+
+# 長さ（最重要）
+- 本文は **5,000〜10,000字**。短くまとめようとしないこと
+- 足りないと感じたら、「たとえば」の場面描写をもっと具体的にして伸ばす。説明の繰り返しで水増ししない
+
+# 語りのルール
+- 1文は短く。40字を超えそうなら2文に分ける
+- 文末は「〜だよ」「〜なんだ」でやわらかく
+- 専門用語は使わない。どうしても必要なら必ず「○○っていうのはね…」と説明してから使う
+- ふりがなは振らない（漢字は小学校高学年が読める範囲で使う）
+- 実在の店名・ブランド名・商品名は出さない（「コンビニのおにぎり」「ゲームのガチャ」のように一般名詞で書く）
+- 自分で換算・概算した数字（「○回ぶん」「○倍」「1家族あたり○円」など）を使った文には、必ず同じ段落に「※金額はイメージだよ」を添える
+- 「友だちからお金を借りて返す」型の例は使わない
+- 同じ例えの使い回しは禁止。毎回ニュースの中身に合った例を考える
+
+# 構成（この順番で書く。見出しは ## を使う）
+1. 「## オープニング」── ニュースを一言で。何が起きたかを3〜5文。むずかしい言葉はここで説明しておく
+2. **「なぜ？」を3〜4個**。それぞれ「## なぜ①　◯◯」の形で見出しを立てる
+   - 軸の例：こまる側／うれしい側／どうしてそうなるのかの仕組み／これからどうなる
+   - 各「なぜ」には**必ず「たとえば」を2つ**入れる
+     - たとえば① ＝ **家の中の例**（おこづかい・給食費・家族のスマホ代・冷蔵庫の中・お年玉 など）
+     - たとえば② ＝ **外の世界の例**（町のお店・工場・学校・市役所・はたらく大人 など）
+     - **1例300〜500字**。登場人物が迷ったり決めたりする「場面が動くまで」書く。結論のラベルで終わらせない
+     - 小見出しは「**たとえば①　◯◯**」の形で太字にする
+3. 「## 数字を身近にしてみると」── お小遣い500円／給食費／コンビニのおにぎりへの換算を**2〜3本**。兆・億など大きすぎる数字は、1世帯あたり・1人あたりに割ってから置きかえる
+4. 「## いいこと・こまることの整理」── メリットとデメリットを箇条書きで左右対称に整理する
+5. 「## じゃあ、うちはどうする？」── **太字の問いかけ1つ**＋家族で話せる質問3個を箇条書き
+6. 「## しめの一言」── 最後にひとこと、やさしく背中を押して終わる
+
+write_kids_scriptツールを使って台本を出力してください。`;
+
 const STYLE_PROMPTS = {
 	detail: `あなたは「シンパパ家計研究所」のゆきちさん（40代シンパパ）として、子育て世帯向けの家計ブログ記事を書きます。
 記事スタイルは「あゆみ先輩なら、こう教えてくれたかな」シリーズ。
@@ -214,10 +276,10 @@ const STYLE_PROMPTS = {
 **あゆみ**「うん、…」
 \`\`\``,
 
-	kids: `あなたは子育て世帯向けの家計ブログの編集者です。以下のニュースを元に、**小学校高学年〜中学生がひとりで読めるやさしい言葉**でブログ記事を日本語で書いてください。
+	kids: `あなたは子育て世帯向けの家計ブログの編集者です。**小学校高学年〜中学生がひとりで読めるやさしい言葉**でブログ記事を日本語で書いてください。
 
 # 基本ルール
-- 本文は**1,500〜2,000字**（write_blog_articleツールの説明にある800〜1200字より、この指定を優先する）。「たとえば」は1つ200〜300字かけて、子供が場面を思い浮かべられるまで説明する
+- 本文は**1,500〜2,000字**（write_blog_articleツールの説明にある800〜1200字より、この指定を優先する）
 - 執筆後に文字数を数え直し、1,500字に届いていなければ「たとえば」と「数字を身近に」を厚くし、2,000字を超えていたら重複している説明を削る
 - 1文は短く。40字を超えそうなら2文に分ける
 - 専門用語は使わない。どうしても必要なら必ず「○○っていうのはね…」と説明してから使う
@@ -225,44 +287,65 @@ const STYLE_PROMPTS = {
 - ふりがなは振らない（漢字は小学校高学年が読める範囲で使う）
 - 実在の店名・ブランド名・商品名は出さない（「コンビニのおにぎり」「ゲームのガチャ」のように一般名詞で書く）
 - タイトルの頭に「【やさしい版】」を付ける（タイトル全体で30字以内）
+- 「友だちからお金を借りて返す」型の例は使わない（過去に多用したため）
+- 同じ例えの使い回しは禁止。毎回ニュースの中身に合った例を考える
+- 自分で換算・概算した数字（「○回ぶん」「○倍」「1家族あたり○円」など）を使った文には、必ず同じ段落に「※金額はイメージだよ」を添える
 
-# 必ず入れる3点セット（ここが一番大事）
-1. **「たとえば」の具体例を2〜3個**
-   - 子どもの生活に近い金額・場面に置きかえる
-   - 使ってよい題材の例：お小遣い500円／ガチャ1回300円／コンビニのおにぎり／自動販売機のジュース／学校の給食費／家族のスマホ代／ゲームソフト1本
-   - **毎回ニュースの中身に合った例を考える**。「友だちに100円借りて105円返す」のような同じ例えの使い回しは禁止
-   - 「友だちからお金を借りて返す」型の例は使わない（過去に多用したため）
-2. **ニュースの数字を身近な単位に言い換える1行**
-   - 「これは、お小遣い500円の◯回ぶんだよ」「うちの1か月の食費くらいの金額なんだ」のように、必ず1行で置きかえる
-   - 兆・億など大きすぎる数字は、1世帯あたり・1人あたりに割ってから置きかえる
-   - 自分で換算・概算した数字（「○回ぶん」「○倍」「1家族あたり○円」など）を使った文には、必ず同じ段落に「※金額はイメージだよ」を添える
-3. **「じゃあ、うちはどうする？」の問いかけを1つ**
-   - 感想を聞く問いではなく、家族がその場で1つ決められる問いにする
-   - 例：「毎月かならず出ていくお金の中から、減らせそうなものを家族でひとつだけ選んでみよう」
+# 記事の型（A案＝標準。この見出しの順番で書く）
+1. 「## ニュースを一言でいうと」── 何が起きたかを3〜5文。むずかしい言葉はここで説明しておく
+2. 「## なぜ①　◯◯」（こまる側）── 2〜3文の導入のあと、「**たとえば①　◯◯**」「**たとえば②　◯◯**」の小見出しで例を2つ。**各200〜300字**。1つの小さな物語になるまで書く（「パン屋さんがオーブンを買うのをやめる」のように場面が動くところまで）
+3. 「## なぜ②　◯◯」（うれしい側）── 同じく導入＋「たとえば①」「たとえば②」（各200〜300字）
+   - うれしい側の例を2つ作れないニュースなら、なぜ②を「じゃあ、どうやって防ぐ？」「だれが助けてくれるの？」などに置きかえてよい
+4. 「## 数字を身近にしてみると」── お小遣い500円／給食費／コンビニのおにぎりへの換算を1〜2行＋補足。兆・億は1世帯あたり・1人あたりに割ってから置きかえる
+5. 「## じゃあ、うちはどうする？」── **太字の問いかけ1つ**＋その下に家族で話せる質問2個を箇条書き。感想を聞く問いではなく、家族がその場で1つ決められる問いにする
 
-# 記事の型（この見出し5つの順番で書く）
-1. ## ニュースを一言でいうと （何が起きたかを2〜3文）
-2. ## たとえば、どういうこと？ （具体例2〜3個。それぞれ「**たとえば①　◯◯**」の小見出し＋2〜3文）
-3. ## 数字を身近にしてみると （言い換えの1行＋補足1〜2文）
-4. ## おうちにはどう関係する？ （家計への影響を箇条書き2〜3個）
-5. ## じゃあ、うちはどうする？ （太字の問いかけ1つ＋その下に家族で話せる質問2個を箇条書き）`,
+# 受け皿（B案）── 次のときだけA案の代わりに使う
+- 制度変更や新しい補助金など、対象者が多岐にわたる話
+- 賛否が割れる／立場によって評価が逆になる話
+- うれしい側の「たとえば」を2つ作れない話
+B案の型：「なぜ」を2つ立て、それぞれの下に **いいこと** と **こまること** を置き、各2例を1〜2文の箇条書きで書く。
+B案の必須ルール：**2文で言い切れない論点は入れない**（理屈が2段以上あるものは切る）。8個そろえることを目的にしない。6個でも、言い切れる6個を選ぶ。地の文（各「なぜ」の導入）を各2段落しっかり書かないと1,500字を割る。
+
+# 「たとえば」の濃さの見本（A案）
+**たとえば②　町のパン屋さんの「お店の借金」**
+
+こまるのは、おうちだけじゃないんだ。町のパン屋さんを想像してみて。オーブンを新しくしたいとき、お店の人も銀行からお金を借りるんだよ。金利が上がると、その借りたお金を返すのが大変になる。するとお店の人は、こう考えるんだ。「オーブンは、もう少しがまんしようかな」って。新しいオーブンが売れなければ、オーブンを作る工場の仕事も減る。こうやって、金利の話はお店や工場にも広がっていくんだ。`,
 };
 
-async function generateArticle(client, item, style) {
+/**
+ * 記事を生成する。
+ * kidsScript を渡すと「台本を1,500〜2,000字に要約する」モードになる（2段生成の2段目）。
+ * 渡さなければ従来どおりニュースから直接書く（フォールバック経路）。
+ */
+async function generateArticle(client, item, style, kidsScript = null) {
 	const stylePrompt = STYLE_PROMPTS[style];
+	const scriptSection = kidsScript
+		? `
+
+# 下敷きにする台本（YouTube用の長い語り台本）
+この台本の内容を **1,500〜2,000字に要約** して記事にしてください。
+- 台本にない事実を足さない
+- 「たとえば」は台本の中から記事の型に合うものを選び、200〜300字に刈り込む（場面は残す）
+- 台本の見出しをそのまま写すのではなく、上の「記事の型」の見出しに組み直す
+
+--- 台本ここから ---
+${kidsScript.body}
+--- 台本ここまで ---`
+		: '';
+
 	const prompt = `${stylePrompt}
 
 # 元ニュース
 - タイトル: ${item.title}
 - 出典: ${item.source}
 - URL: ${item.link}
-- 概要: ${item.contentSnippet}
+- 概要: ${item.contentSnippet}${scriptSection}
 
 write_blog_articleツールを使って記事を出力してください。`;
 
 	const resp = await client.messages.create({
 		model: MODEL,
-		max_tokens: 4000,
+		max_tokens: ARTICLE_MAX_TOKENS,
 		tools: [ARTICLE_TOOL],
 		tool_choice: { type: 'tool', name: 'write_blog_article' },
 		messages: [{ role: 'user', content: prompt }],
@@ -271,6 +354,44 @@ write_blog_articleツールを使って記事を出力してください。`;
 	const toolUse = resp.content.find((b) => b.type === 'tool_use');
 	if (!toolUse) throw new Error('Claudeがツール呼び出しを返しませんでした');
 	return toolUse.input;
+}
+
+/**
+ * ちびっ子向けYouTube台本（5,000〜10,000字）を生成する（2段生成の1段目）。
+ * max_tokens で途中で切れた場合は1回だけリトライし、それでも切れたら null を返す。
+ * null のときは呼び出し側が従来の1段生成にフォールバックするので、記事が出ない事故にはならない。
+ */
+async function generateKidsScript(client, item) {
+	const prompt = `${KIDS_SCRIPT_PROMPT}
+
+# 元ニュース
+- タイトル: ${item.title}
+- 出典: ${item.source}
+- URL: ${item.link}
+- 概要: ${item.contentSnippet}
+
+write_kids_scriptツールを使って台本を出力してください。`;
+
+	for (let attempt = 1; attempt <= 2; attempt++) {
+		const resp = await client.messages.create({
+			model: MODEL,
+			max_tokens: KIDS_SCRIPT_MAX_TOKENS,
+			tools: [KIDS_SCRIPT_TOOL],
+			tool_choice: { type: 'tool', name: 'write_kids_script' },
+			messages: [{ role: 'user', content: prompt }],
+		});
+		if (resp.stop_reason === 'max_tokens') {
+			console.warn(`  ! 台本が max_tokens で切れました（${attempt}回目）`);
+			continue;
+		}
+		const toolUse = resp.content.find((b) => b.type === 'tool_use');
+		if (!toolUse || !toolUse.input || !toolUse.input.body) {
+			console.warn(`  ! 台本のツール出力が空でした（${attempt}回目）`);
+			continue;
+		}
+		return toolUse.input;
+	}
+	return null;
 }
 
 /**
@@ -322,6 +443,31 @@ async function writePost({ article, item, slug, pairedSlug, style }) {
 	].join('\n');
 	const filePath = path.join(OUTPUT_DIR, `${slug}.md`);
 	await fs.writeFile(filePath, frontmatter + article.body + footer, 'utf8');
+	return filePath;
+}
+
+/**
+ * 台本を kids-scripts/ に保存する。
+ * ここは `src/content/` の外なので Astro のビルド対象にならない（= サイトには出ない）。
+ * YouTube台本の源泉として置いておくだけ。
+ */
+async function writeKidsScript({ script, item, slug, articleSlug, date }) {
+	await fs.mkdir(KIDS_SCRIPTS_DIR, { recursive: true });
+	const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+	const iso = jst.toISOString().slice(0, 19) + '+09:00';
+	const esc = (s) => String(s ?? '').replace(/'/g, "''");
+	const frontmatter = [
+		'---',
+		`title: '${esc(script.title)}'`,
+		`date: '${iso}'`,
+		`sourceTitle: '${esc(item.title)}'`,
+		`sourceUrl: '${esc(item.link)}'`,
+		`articleSlug: '${esc(articleSlug)}'`,
+		'---',
+		'',
+	].join('\n');
+	const filePath = path.join(KIDS_SCRIPTS_DIR, `${slug}.md`);
+	await fs.writeFile(filePath, frontmatter + script.body + '\n', 'utf8');
 	return filePath;
 }
 
@@ -474,8 +620,31 @@ async function main() {
 			});
 			console.log(`  ✔ 詳細版: ${path.relative(ROOT, detailPath)}`);
 
-			// やさしい版
-			const kids = await generateArticle(client, item, 'kids');
+			// ちびっ子向けYouTube台本（5,000〜10,000字・サイトには出さない）
+			let kidsScript = null;
+			try {
+				kidsScript = await generateKidsScript(client, item);
+				if (kidsScript) {
+					const scriptPath = await writeKidsScript({
+						script: kidsScript,
+						item,
+						slug: detailSlug,
+						articleSlug: kidsSlug,
+						date: today,
+					});
+					console.log(
+						`  ✔ 台本: ${path.relative(ROOT, scriptPath)} (${kidsScript.body.length}字)`,
+					);
+				} else {
+					console.warn('  ! 台本を作れませんでした。やさしい版は従来の1段生成にフォールバックします');
+				}
+			} catch (scriptErr) {
+				console.error(`  ✖ 台本生成エラー: ${scriptErr.message}（1段生成にフォールバック）`);
+				kidsScript = null;
+			}
+
+			// やさしい版（台本があればそれを要約、なければニュースから直接）
+			const kids = await generateArticle(client, item, 'kids', kidsScript);
 			const kidsPath = await writePost({
 				article: kids,
 				item,
@@ -505,9 +674,31 @@ async function main() {
 	console.log('\n完了');
 }
 
-main()
-	.then(() => process.exit(0))
-	.catch((err) => {
-		console.error(err);
-		process.exit(1);
-	});
+// テストから import できるように公開する
+export {
+	ARTICLE_TOOL,
+	KIDS_SCRIPT_TOOL,
+	KIDS_SCRIPT_PROMPT,
+	KIDS_SCRIPTS_DIR,
+	OUTPUT_DIR,
+	STYLE_PROMPTS,
+	generateArticle,
+	generateKidsScript,
+	writeKidsScript,
+	writePost,
+	slugify,
+	main,
+};
+
+// 直接実行されたときだけ動かす（import しただけでは走らない）
+const invokedDirectly =
+	process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url;
+
+if (invokedDirectly) {
+	main()
+		.then(() => process.exit(0))
+		.catch((err) => {
+			console.error(err);
+			process.exit(1);
+		});
+}
