@@ -373,13 +373,20 @@ async function generateKidsScript(client, item) {
 write_kids_scriptツールを使って台本を出力してください。`;
 
 	for (let attempt = 1; attempt <= 2; attempt++) {
-		const resp = await client.messages.create({
-			model: MODEL,
-			max_tokens: KIDS_SCRIPT_MAX_TOKENS,
-			tools: [KIDS_SCRIPT_TOOL],
-			tool_choice: { type: 'tool', name: 'write_kids_script' },
-			messages: [{ role: 'user', content: prompt }],
-		});
+		// 台本は長い（5,000〜10,000字）ので、クライアント既定の60秒では必ずタイムアウトする。
+		// この呼び出しだけストリーミング＋10分に延ばす。
+		const resp = await client.messages
+			.stream(
+				{
+					model: MODEL,
+					max_tokens: KIDS_SCRIPT_MAX_TOKENS,
+					tools: [KIDS_SCRIPT_TOOL],
+					tool_choice: { type: 'tool', name: 'write_kids_script' },
+					messages: [{ role: 'user', content: prompt }],
+				},
+				{ timeout: 600_000 },
+			)
+			.finalMessage();
 		if (resp.stop_reason === 'max_tokens') {
 			console.warn(`  ! 台本が max_tokens で切れました（${attempt}回目）`);
 			continue;
