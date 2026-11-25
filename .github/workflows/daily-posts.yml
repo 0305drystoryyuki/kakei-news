@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -70,7 +70,19 @@ jobs:
         with:
           path: ./dist
 
+      # アップロード直後は artifact が見つからず失敗することがある（2026-11-24・25に発生）。
+      # 1回目が失敗したら60秒待ってもう一度だけデプロイする
       - name: Deploy to GitHub Pages
         if: steps.commit.outputs.changed == 'true'
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before retry
+        if: steps.commit.outputs.changed == 'true' && steps.deployment.outcome == 'failure'
+        run: sleep 60
+
+      - name: Deploy to GitHub Pages (retry)
+        if: steps.commit.outputs.changed == 'true' && steps.deployment.outcome == 'failure'
+        id: deployment_retry
         uses: actions/deploy-pages@v4
